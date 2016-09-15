@@ -4,6 +4,10 @@
 /deps
 /*.ez
 
+**/elm-stuff
+.DS_Store
+/web/static/vendor/app.js
+
 # Generated on crash by the VM
 erl_crash.dump
 
