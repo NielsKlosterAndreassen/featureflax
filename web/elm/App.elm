@@ -7,9 +7,12 @@ import List exposing (..)
 
 type ToggleState = On | Off
 
+type Environment = Development | Staging | Production
+
 type alias Toggle =
   { name : String,
-    state : ToggleState
+    state : ToggleState,
+    environment : Environment
   }
 
 type alias Model = List Toggle
@@ -25,31 +28,29 @@ main =
 
 init : (Model, Cmd Msg)
 init =
-  ( [{ name = "NewLogin", state = Off }, { name = "ReorderButtons", state = On }], Cmd.none )
+  ( [{ name = "NewLogin", state = Off, environment = Development },
+     { name = "ReorderButtons", state = On, environment = Staging }], Cmd.none )
 
 update msg model =
   ([], Cmd.none)
 
 view : Model -> Html Msg
 view model =
-  table [ class "toggles"]
+  table [ class "toggles" ]
     ( model
       |> map drawToggle
     )
 drawToggle toggle =
-  case toggle.state of
-    On ->
-      tr [ class "toggleOn" ]
-      [
-        td [] [ text toggle.name ],
-        td [] [ text "On" ]
-      ]
-    Off -> 
-      tr [ class "toggleOff" ]
-      [
-        td [] [ text toggle.name ],
-        td [] [ text "Off" ]
-      ]
+  tr [ class "toggleOn" ] [
+    td [] [ text toggle.name ],
+    td [] [ drawSlider toggle ]
+  ]
+
+drawSlider toggle =
+  label [ class "switch"] [ 
+    input [ type' "checkbox", checked (if toggle.state == On then True else False ) ] [],
+    div [ class "slider" ] []
+  ]
 
 subscriptions model =
   Sub.none
