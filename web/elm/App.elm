@@ -14,7 +14,7 @@ type alias FeatureState =
     isOnFor : List Environment
   }
 
-type alias Model = 
+type alias Model =
   { featureStates : List FeatureState,
     environments : List Environment
   }
@@ -37,7 +37,11 @@ init =
   let initialState =
     [ 
       AddEnvironment "Development",
-      AddEnvironment "Staging"
+      AddEnvironment "Staging",
+      AddEnvironment "Production",
+      TurnFeatureOn("Two Factor Authentication", "Development"),
+      TurnFeatureOn("Two Factor Authentication", "Staging"),
+      TurnFeatureOff("Two Factor Authentication", "Development")
     ]
     |> foldr rollupUpdate { featureStates = [], environments = []}
   in
@@ -54,8 +58,12 @@ update msg model =
   None -> (model, Cmd.none)
   AddEnvironment environment ->
     ({model | environments = environment :: model.environments } , Cmd.none)
-  TurnFeatureOn (feature, environment) -> 
-    (model, Cmd.none)
+  TurnFeatureOn (feature, environment) ->
+    case model.featureStates |> find (\ x -> x.name == feature) of
+    Nothing ->
+      ({model | featureStates = { name = feature, isOnFor = [ environment ] } :: model.featureStates }, Cmd.none)
+    Just existing ->
+      ({model | featureStates = {existing | isOnFor = environment :: existing.isOnFor } :: (model.featureStates |> filter (\ x -> x.name /= feature))}, Cmd.none)
   TurnFeatureOff (feature, environment) -> (model, Cmd.none)
 
 view : Model -> Html Msg
