@@ -16,7 +16,8 @@ type alias FeatureState =
 
 type alias Model =
   { featureStates : List FeatureState,
-    environments : List Environment
+    environments : List Environment,
+    history : List Msg
   }
 type Msg =
   AddEnvironment Environment |
@@ -42,7 +43,7 @@ init =
       TurnFeatureOn("Two Factor Authentication", "Staging"),
       TurnFeatureOff("Two Factor Authentication", "Development")
     ]
-    |> foldr rollupUpdate { featureStates = [], environments = []}
+    |> foldr rollupUpdate { featureStates = [], environments = [], history = []}
   in
   (initialState, Cmd.none)
 
@@ -57,7 +58,10 @@ except feature states =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  ({ environments = getEnvironments msg model.environments, featureStates = getFeatureStates msg model.featureStates}, Cmd.none)
+  ({ environments = getEnvironments msg model.environments, 
+     featureStates = getFeatureStates msg model.featureStates,
+     history = msg :: model.history
+  }, Cmd.none)
 
 getEnvironments msg environments =
   case msg of
@@ -84,10 +88,21 @@ view model =
     |> append model.environments
     |> unique
   in
-  table [ class "toggles"] (
-    drawHeader environments :: 
-    (model.featureStates |> map (drawFeature environments))
-  )
+  span [] [
+    table [ class "toggles"] (
+      drawHeader environments :: 
+      (model.featureStates |> map (drawFeature environments))
+    ),
+    ul [ class "history"] (
+      (model.history |> map (\ item -> li [] [ getHistoryText item ]))
+    )
+  ]
+
+getHistoryText msg =
+  case msg of
+  AddEnvironment environment -> text ("Added " ++ environment)
+  TurnFeatureOn (feature, environment) -> text ("Turned on " ++ feature ++ " for " ++ environment)
+  TurnFeatureOff (feature, environment) -> text ("Turned off " ++ feature ++ " for " ++ environment)
 
 drawHeader environments =
   thead [] ( "" :: environments |> map (\ header -> th [] [ text header ]) )

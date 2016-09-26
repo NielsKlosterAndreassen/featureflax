@@ -8,6 +8,10 @@
   padding: 1em;
 }
 
+.history li {
+  text-align: left;
+}
+
 /* The switch - the box around the slider */
 .switch {
   position: relative;
