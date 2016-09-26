@@ -7,14 +7,22 @@ import List exposing (..)
 import ListExtra exposing (..)
 
 type alias Environment = String
+type alias Feature = String
 
-type alias Feature =
-  { name : String,
-    environments : List Environment
+type alias FeatureState =
+  { name : Feature,
+    isOnFor : List Environment
   }
 
-type alias Model = List Feature
-type Msg = None
+type alias Model = 
+  { featureStates : List FeatureState,
+    environments : List Environment
+  }
+type Msg =
+  None |
+  AddEnvironment Environment |
+  TurnFeatureOn (Feature, Environment) |
+  TurnFeatureOff (Feature, Environment)
 
 main =
   App.program
@@ -26,18 +34,42 @@ main =
 
 init : (Model, Cmd Msg)
 init =
-  ( [{ name = "NewLogin", environments = [ "Staging" ]  },
-     { name = "ReorderButtons", environments = [ "Staging", "Production" ] }], Cmd.none )
+  let initialState =
+    [ 
+      AddEnvironment "Development",
+      AddEnvironment "Staging"
+    ]
+    |> foldr rollupUpdate { featureStates = [], environments = []}
+  in
+  (initialState, Cmd.none)
 
+rollupUpdate : Msg -> Model -> Model
+rollupUpdate msg model =
+  let (result, _) = update msg model in
+  result
+
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  ([], Cmd.none)
+  case msg of
+  None -> (model, Cmd.none)
+  AddEnvironment environment ->
+    ({model | environments = environment :: model.environments } , Cmd.none)
+  TurnFeatureOn (feature, environment) -> 
+    (model, Cmd.none)
+  TurnFeatureOff (feature, environment) -> (model, Cmd.none)
 
 view : Model -> Html Msg
 view model =
-  let environments = model |> map (\ feature -> feature.environments) |> concat |> unique in
+  let environments =
+    model.featureStates
+    |> map (\ feature -> feature.isOnFor)
+    |> concat
+    |> append model.environments
+    |> unique
+  in
   table [ class "toggles"] (
     drawHeader environments :: 
-    (model |> map (drawFeature environments))
+    (model.featureStates |> map (drawFeature environments))
   )
 
 drawHeader environments =
@@ -47,7 +79,7 @@ drawFeature environments feature =
   tr [ ] ( td [] [text feature.name] :: (environments |> map (drawSlider feature)))
 
 drawSlider feature environment =
-  let isChecked = feature.environments |> any (\ x -> x == environment) in
+  let isChecked = feature.isOnFor |> any (\ x -> x == environment) in
   td [] [ label [ class "switch"] [ 
     input [ type' "checkbox", checked isChecked ] [],
     div [ class "slider" ] []
