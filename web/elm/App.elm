@@ -4,6 +4,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.App as App
 import List exposing (..)
+import ListExtra exposing (..)
 
 type alias Environment = String
 
@@ -33,7 +34,7 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-  let environments = [ "Staging", "Production" ] in
+  let environments = model |> map (\ feature -> feature.environments) |> concat |> unique in
   table [ class "toggles"] (
     drawHeader environments :: 
     (model |> map (drawFeature environments))
