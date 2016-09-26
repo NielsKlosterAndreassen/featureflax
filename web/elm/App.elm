@@ -19,7 +19,6 @@ type alias Model =
     environments : List Environment
   }
 type Msg =
-  None |
   AddEnvironment Environment |
   TurnFeatureOn (Feature, Environment) |
   TurnFeatureOff (Feature, Environment)
@@ -52,19 +51,29 @@ rollupUpdate msg model =
   let (result, _) = update msg model in
   result
 
+except : Feature -> List FeatureState -> List FeatureState
+except feature states =
+  states |> filter (\ x -> x.name /= feature)
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
+  ({ environments = getEnvironments msg model.environments, featureStates = getFeatureStates msg model.featureStates}, Cmd.none)
+
+getEnvironments msg environments =
   case msg of
-  None -> (model, Cmd.none)
-  AddEnvironment environment ->
-    ({model | environments = environment :: model.environments } , Cmd.none)
+    AddEnvironment environment -> environment :: environments
+    _ -> environments
+
+getFeatureStates msg featureStates =
+  case msg of
   TurnFeatureOn (feature, environment) ->
-    case model.featureStates |> find (\ x -> x.name == feature) of
+    case featureStates |> find (\ x -> x.name == feature) of
     Nothing ->
-      ({model | featureStates = { name = feature, isOnFor = [ environment ] } :: model.featureStates }, Cmd.none)
+      { name = feature, isOnFor = [ environment ] } :: featureStates
     Just existing ->
-      ({model | featureStates = {existing | isOnFor = environment :: existing.isOnFor } :: (model.featureStates |> filter (\ x -> x.name /= feature))}, Cmd.none)
-  TurnFeatureOff (feature, environment) -> (model, Cmd.none)
+      { existing | isOnFor = environment :: existing.isOnFor } :: (featureStates |> except feature)
+  TurnFeatureOff (feature, environment) -> []
+  _ -> featureStates
 
 view : Model -> Html Msg
 view model =
