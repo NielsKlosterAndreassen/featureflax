@@ -5,17 +5,14 @@ import Html.Attributes exposing (..)
 import Html.App as App
 import List exposing (..)
 
-type ToggleState = On | Off
+type alias Environment = String
 
-type Environment = Development | Staging | Production
-
-type alias Toggle =
+type alias Feature =
   { name : String,
-    state : ToggleState,
-    environment : Environment
+    environments : List Environment
   }
 
-type alias Model = List Toggle
+type alias Model = List Feature
 type Msg = None
 
 main =
@@ -28,31 +25,32 @@ main =
 
 init : (Model, Cmd Msg)
 init =
-  ( [{ name = "NewLogin", state = Off, environment = Development },
-     { name = "ReorderButtons", state = On, environment = Staging }], Cmd.none )
+  ( [{ name = "NewLogin", environments = [ "Staging" ]  },
+     { name = "ReorderButtons", environments = [ "Staging", "Production" ] }], Cmd.none )
 
 update msg model =
   ([], Cmd.none)
 
 view : Model -> Html Msg
 view model =
-  table [ class "toggles" ]
-    ( model
-      |> map drawToggle
-    )
-drawToggle toggle =
-  tr [ class "toggleOn" ] [
-    td [] [ text toggle.name ],
-    td [] [ drawSlider toggle ]
-  ]
+  let environments = [ "Staging", "Production" ] in
+  table [ class "toggles"] (
+    drawHeader environments :: 
+    (model |> map (drawFeature environments))
+  )
 
-drawSlider toggle =
-  label [ class "switch"] [ 
-    input [ type' "checkbox", checked (if toggle.state == On then True else False ) ] [],
+drawHeader environments =
+  thead [] ( "" :: environments |> map (\ header -> th [] [ text header ]) )
+
+drawFeature environments feature =
+  tr [ ] ( td [] [text feature.name] :: (environments |> map (drawSlider feature)))
+
+drawSlider feature environment =
+  let isChecked = feature.environments |> any (\ x -> x == environment) in
+  td [] [ label [ class "switch"] [ 
+    input [ type' "checkbox", checked isChecked ] [],
     div [ class "slider" ] []
-  ]
+  ]]
 
 subscriptions model =
   Sub.none
-
-
