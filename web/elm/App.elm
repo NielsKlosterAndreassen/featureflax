@@ -36,14 +36,16 @@ init : (Model, Cmd Msg)
 init =
   let initialState =
     [ 
-      AddEnvironment "Development",
-      AddEnvironment "Staging",
       AddEnvironment "Production",
+      AddEnvironment "Staging",
+      AddEnvironment "Development",
       TurnFeatureOn("Two Factor Authentication", "Development"),
       TurnFeatureOn("Two Factor Authentication", "Staging"),
+      TurnFeatureOn("Two Factor Authentication", "Production"),
+      TurnFeatureOff("Two Factor Authentication", "Staging"),
       TurnFeatureOff("Two Factor Authentication", "Development")
     ]
-    |> foldr rollupUpdate { featureStates = [], environments = [], history = []}
+    |> foldl rollupUpdate { featureStates = [], environments = [], history = []}
   in
   (initialState, Cmd.none)
 
@@ -76,7 +78,12 @@ getFeatureStates msg featureStates =
       { name = feature, isOnFor = [ environment ] } :: featureStates
     Just existing ->
       { existing | isOnFor = environment :: existing.isOnFor } :: (featureStates |> except feature)
-  TurnFeatureOff (feature, environment) -> []
+  TurnFeatureOff (feature, environment) ->
+    case featureStates |> find (\ x -> x.name == feature) of
+    Nothing ->
+      featureStates
+    Just existing ->
+      { existing | isOnFor = existing.isOnFor |> filter (\x -> x /= environment ) } :: (featureStates |> except feature)
   _ -> featureStates
 
 view : Model -> Html Msg
