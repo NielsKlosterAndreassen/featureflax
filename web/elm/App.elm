@@ -47,7 +47,8 @@ init =
       AddEnvironment "Production",
       AddEnvironment "Staging",
       AddEnvironment "Development",
-      TurnFeatureOn("Two Factor Authentication", "Development")
+      AddFeature "Two Factor Authentication",
+      AddFeature "New Layout"
     ]
     |> foldl rollupUpdate emptyModel
   in
@@ -111,11 +112,11 @@ view model =
       (model.featureStates |> map (drawFeature environments))
     ),
     Html.form [ class "input-group col-lg-4", onSubmit (AddEnvironment model.newEnvironmentText)] [
-      input [type' "text", class "form-control", placeholder "Add environment", onInput UpdateNewEnvironment] [],
+      input [type' "text", class "form-control", placeholder "New environment", onInput UpdateNewEnvironment] [],
       span [class "input-group-btn"] [ button [class "btn btn-default"] [ text "Add"]]
     ],
     Html.form [ class "input-group col-lg-4", onSubmit (AddFeature model.newFeatureText)] [
-      input [type' "text", class "form-control", placeholder "Add feature", onInput UpdateNewFeature] [],
+      input [type' "text", class "form-control", placeholder "New feature", onInput UpdateNewFeature] [],
       span [class "input-group-btn"] [ button [class "btn btn-default"] [ text "Add"]]
     ],
     ul [ class "history"] (
@@ -133,8 +134,8 @@ isInHistory msg =
 
 getHistoryText msg =
   case msg of
-  AddEnvironment environment -> text ("Added " ++ environment)
-  AddFeature feature -> text ("Added " ++ feature)
+  AddEnvironment environment -> text ("Added " ++ environment ++ " environment")
+  AddFeature feature -> text ("Added feature " ++ feature)
   TurnFeatureOn (feature, environment) -> text ("Turned on " ++ feature ++ " for " ++ environment)
   TurnFeatureOff (feature, environment) -> text ("Turned off " ++ feature ++ " for " ++ environment)
   _ -> text ""
