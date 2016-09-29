@@ -5,19 +5,12 @@ import Html.Attributes exposing (..)
 import Html.App as App
 import Html.Events exposing (onClick, onSubmit, onInput)
 import List exposing (..)
-import ListExtra exposing (..)
 
 type alias Environment = String
 type alias Feature = String
 
-type alias FeatureState =
-  { name : Feature,
-    isOnFor : List Environment
-  }
-
 type alias Model =
-  { featureStates : List FeatureState,
-    environments : List Environment,
+  { environments : List Environment,
     history : List Msg,
     newFeatureText : String,
     newEnvironmentText : String
@@ -41,7 +34,7 @@ main =
 init : (Model, Cmd Msg)
 init =
   let
-    emptyModel = { featureStates = [], environments = [], history = [], newFeatureText = "", newEnvironmentText = ""}
+    emptyModel = { environments = [], history = [], newFeatureText = "", newEnvironmentText = ""}
     initialState =
     [ 
       AddEnvironment "Production",
@@ -59,10 +52,6 @@ rollupUpdate msg model =
   let (result, _) = update msg model in
   result
 
-except : Feature -> List FeatureState -> List FeatureState
-except feature states =
-  states |> filter (\ x -> x.name /= feature)
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg modelWithoutHistory =
   let model = { modelWithoutHistory | history = msg :: modelWithoutHistory.history } in
@@ -71,8 +60,7 @@ update msg modelWithoutHistory =
     UpdateNewEnvironment text -> ({ model | newEnvironmentText = text }, Cmd.none)
     _ ->
       ({ model |
-         environments = getEnvironments msg model.environments, 
-         featureStates = getFeatureStates msg model.featureStates
+         environments = getEnvironments msg model.environments
       }, Cmd.none)
 
 getEnvironments msg environments =
@@ -80,36 +68,19 @@ getEnvironments msg environments =
     AddEnvironment environment -> environment :: environments
     _ -> environments
 
-getFeatureStates msg featureStates =
+getFeatureName msg =
   case msg of
-  AddFeature feature -> { name = feature, isOnFor = [] } :: featureStates
-  TurnFeatureOn (feature, environment) ->
-    case featureStates |> find (\ x -> x.name == feature) of
-    Nothing ->
-      { name = feature, isOnFor = [ environment ] } :: featureStates
-    Just existing ->
-      { existing | isOnFor = environment :: existing.isOnFor } :: (featureStates |> except feature)
-  TurnFeatureOff (feature, environment) ->
-    case featureStates |> find (\ x -> x.name == feature) of
-    Nothing ->
-      featureStates
-    Just existing ->
-      { existing | isOnFor = existing.isOnFor |> filter (\x -> x /= environment ) } :: (featureStates |> except feature)
-  _ -> featureStates
+    AddFeature feature -> Just feature
+    _ -> Nothing
 
 view : Model -> Html Msg
 view model =
-  let environments =
-    model.featureStates
-    |> map (\ feature -> feature.isOnFor)
-    |> concat
-    |> append model.environments
-    |> unique
+  let features = model.history |> filterMap getFeatureName
   in
   span [] [
     table [ class "toggles"] (
-      drawHeader environments :: 
-      (model.featureStates |> map (drawFeature environments))
+      drawHeader model.environments :: 
+      (features |> map (drawFeature model.environments model.history))
     ),
     Html.form [ class "input-group col-lg-4", onSubmit (AddEnvironment model.newEnvironmentText)] [
       input [type' "text", class "form-control", placeholder "New environment", onInput UpdateNewEnvironment] [],
@@ -143,13 +114,31 @@ getHistoryText msg =
 drawHeader environments =
   thead [] ( "" :: environments |> map (\ header -> th [] [ text header ]) )
 
-drawFeature environments feature =
-  tr [ ] ( td [] [text feature.name] :: (environments |> map (drawSlider feature)))
+drawFeature : List Environment -> List Msg -> Feature -> Html Msg
+drawFeature environments history feature =
+  tr [ ] ( td [] [text feature] :: (environments |> map (drawSlider feature history)))
 
-drawSlider feature environment =
+isCurrentToggleAction : Feature -> Environment -> Msg -> Bool
+isCurrentToggleAction feature environment msg =
+  case msg of
+  TurnFeatureOn (currentFeature, currentEnvironment) -> feature == currentFeature && environment == currentEnvironment
+  TurnFeatureOff (currentFeature, currentEnvironment) -> feature == currentFeature && environment == currentEnvironment
+  _ -> False
+
+getToggleState history feature environment =
+  let lastToggle = history
+  |> filter (\x -> isCurrentToggleAction feature environment x)
+  |> head
+  in
+  case lastToggle of
+    Just (TurnFeatureOn _) -> True
+    _ -> False
+
+drawSlider : Feature -> List Msg -> Environment -> Html Msg
+drawSlider feature history environment =
   let 
-    isChecked = feature.isOnFor |> any (\ x -> x == environment)
-    toggle = if isChecked then TurnFeatureOff(feature.name, environment) else TurnFeatureOn(feature.name, environment)
+    isChecked = getToggleState history feature environment
+    toggle = if isChecked then TurnFeatureOff(feature, environment) else TurnFeatureOn(feature, environment)
   in
   td [] [ label [ class "switch"] [ 
     input [ type' "checkbox", checked isChecked, onClick toggle] [],
