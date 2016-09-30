@@ -32,24 +32,10 @@ main =
 
 init : (Model, Cmd Msg)
 init =
-  let
-    emptyModel = { history = [], newFeatureText = "", newEnvironmentText = ""}
-    initialState =
-    [ 
-      AddEnvironment "Production",
-      AddEnvironment "Staging",
-      AddEnvironment "Development",
-      AddFeature "Two Factor Authentication",
-      AddFeature "New Layout"
-    ]
-    |> foldl rollupUpdate emptyModel
-  in
-  (initialState, Cmd.none)
+  ({ history = [], newFeatureText = "", newEnvironmentText = ""}, Cmd.none)
 
-rollupUpdate : Msg -> Model -> Model
-rollupUpdate msg model =
-  let (result, _) = update msg model in
-  result
+subscriptions model =
+  Sub.none
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg modelWithoutHistory =
@@ -60,16 +46,6 @@ update msg modelWithoutHistory =
     AddEnvironment text -> ({model | newEnvironmentText = "" }, Cmd.none)
     AddFeature text -> ({model | newFeatureText = "" }, Cmd.none)
     _ -> (model, Cmd.none)
-
-getEnvironment msg =
-  case msg of
-    AddEnvironment environment -> Just environment
-    _ -> Nothing
-
-getFeatureName msg =
-  case msg of
-    AddFeature feature -> Just feature
-    _ -> Nothing
 
 view : Model -> Html Msg
 view model =
@@ -113,6 +89,16 @@ view model =
     )
   ]
 
+getEnvironment msg =
+  case msg of
+    AddEnvironment environment -> Just environment
+    _ -> Nothing
+
+getFeatureName msg =
+  case msg of
+    AddFeature feature -> Just feature
+    _ -> Nothing
+
 getHistoryText msg =
   case msg of
   AddEnvironment environment -> text ("Added " ++ environment ++ " environment") |> Just
@@ -154,6 +140,3 @@ drawSlider feature history environment =
     input [ type' "checkbox", checked isChecked, onClick toggle] [],
     div [ class "slider" ] []
   ]]
-
-subscriptions model =
-  Sub.none

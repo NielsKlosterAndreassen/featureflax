@@ -19,7 +19,6 @@
           </ul>
         </nav>
         <h1>Feature Flax</h1>
-        <!--<span class="logo"></span>-->
       </header>
 
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
