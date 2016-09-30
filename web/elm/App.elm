@@ -89,11 +89,23 @@ view model =
       (features |> map (drawFeature environments model.history))
     ),
     Html.form [ class "input-group col-lg-4", onSubmit (AddEnvironment model.newEnvironmentText)] [
-      input [type' "text", class "form-control", placeholder "New environment", onInput UpdateNewEnvironment, value model.newEnvironmentText] [],
+      input [
+        type' "text",
+        class "form-control",
+        placeholder "New environment",
+        onInput UpdateNewEnvironment,
+       value model.newEnvironmentText
+      ] [],
       span [class "input-group-btn"] [ button [class "btn btn-default", disabled (not newEnvironmentTextValid)] [ text "Add"]]
     ],
     Html.form [ class "input-group col-lg-4", onSubmit (AddFeature model.newFeatureText)] [
-      input [type' "text", class "form-control", placeholder "New feature", onInput UpdateNewFeature, value model.newFeatureText] [],
+      input [
+        type' "text",
+        class "form-control",
+        placeholder "New feature",
+        onInput UpdateNewFeature,
+        value model.newFeatureText
+      ] [],
       span [class "input-group-btn"] [ button [class "btn btn-default", disabled (not newFeatureTextValid)] [ text "Add"]]
     ],
     ul [ class "history"] (
