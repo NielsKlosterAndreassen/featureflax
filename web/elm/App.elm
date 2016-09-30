@@ -10,8 +10,7 @@ type alias Environment = String
 type alias Feature = String
 
 type alias Model =
-  { environments : List Environment,
-    history : List Msg,
+  { history : List Msg,
     newFeatureText : String,
     newEnvironmentText : String
   }
@@ -34,7 +33,7 @@ main =
 init : (Model, Cmd Msg)
 init =
   let
-    emptyModel = { environments = [], history = [], newFeatureText = "", newEnvironmentText = ""}
+    emptyModel = { history = [], newFeatureText = "", newEnvironmentText = ""}
     initialState =
     [ 
       AddEnvironment "Production",
@@ -58,15 +57,12 @@ update msg modelWithoutHistory =
   case msg of
     UpdateNewFeature text -> ({ model | newFeatureText = text }, Cmd.none)
     UpdateNewEnvironment text -> ({ model | newEnvironmentText = text }, Cmd.none)
-    _ ->
-      ({ model |
-         environments = getEnvironments msg model.environments
-      }, Cmd.none)
+    _ -> (model, Cmd.none)
 
-getEnvironments msg environments =
+getEnvironment msg =
   case msg of
-    AddEnvironment environment -> environment :: environments
-    _ -> environments
+    AddEnvironment environment -> Just environment
+    _ -> Nothing
 
 getFeatureName msg =
   case msg of
@@ -75,12 +71,14 @@ getFeatureName msg =
 
 view : Model -> Html Msg
 view model =
-  let features = model.history |> filterMap getFeatureName
+  let
+    features = model.history |> filterMap getFeatureName
+    environments = model.history |> filterMap getEnvironment
   in
   span [] [
     table [ class "toggles"] (
-      drawHeader model.environments :: 
-      (features |> map (drawFeature model.environments model.history))
+      drawHeader environments :: 
+      (features |> map (drawFeature environments model.history))
     ),
     Html.form [ class "input-group col-lg-4", onSubmit (AddEnvironment model.newEnvironmentText)] [
       input [type' "text", class "form-control", placeholder "New environment", onInput UpdateNewEnvironment] [],
