@@ -57,6 +57,8 @@ update msg modelWithoutHistory =
   case msg of
     UpdateNewFeature text -> ({ model | newFeatureText = text }, Cmd.none)
     UpdateNewEnvironment text -> ({ model | newEnvironmentText = text }, Cmd.none)
+    AddEnvironment text -> ({model | newEnvironmentText = "" }, Cmd.none)
+    AddFeature text -> ({model | newFeatureText = "" }, Cmd.none)
     _ -> (model, Cmd.none)
 
 getEnvironment msg =
@@ -74,6 +76,12 @@ view model =
   let
     features = model.history |> filterMap getFeatureName
     environments = model.history |> filterMap getEnvironment
+    newFeatureTextValid = case model.newFeatureText of
+      "" -> False
+      _ -> features |> filter (\ x -> x == model.newFeatureText) |> isEmpty
+    newEnvironmentTextValid = case model.newEnvironmentText of
+      "" -> False
+      _ -> environments |> filter (\ x -> x == model.newEnvironmentText) |> isEmpty
   in
   span [] [
     table [ class "toggles"] (
@@ -81,12 +89,12 @@ view model =
       (features |> map (drawFeature environments model.history))
     ),
     Html.form [ class "input-group col-lg-4", onSubmit (AddEnvironment model.newEnvironmentText)] [
-      input [type' "text", class "form-control", placeholder "New environment", onInput UpdateNewEnvironment] [],
-      span [class "input-group-btn"] [ button [class "btn btn-default"] [ text "Add"]]
+      input [type' "text", class "form-control", placeholder "New environment", onInput UpdateNewEnvironment, value model.newEnvironmentText] [],
+      span [class "input-group-btn"] [ button [class "btn btn-default", disabled (not newEnvironmentTextValid)] [ text "Add"]]
     ],
     Html.form [ class "input-group col-lg-4", onSubmit (AddFeature model.newFeatureText)] [
-      input [type' "text", class "form-control", placeholder "New feature", onInput UpdateNewFeature] [],
-      span [class "input-group-btn"] [ button [class "btn btn-default"] [ text "Add"]]
+      input [type' "text", class "form-control", placeholder "New feature", onInput UpdateNewFeature, value model.newFeatureText] [],
+      span [class "input-group-btn"] [ button [class "btn btn-default", disabled (not newFeatureTextValid)] [ text "Add"]]
     ],
     ul [ class "history"] (
       (model.history |> filter isInHistory |> map (\ item -> li [ ] [ getHistoryText item ]))
