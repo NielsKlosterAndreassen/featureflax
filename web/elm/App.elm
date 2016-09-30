@@ -97,25 +97,17 @@ view model =
       span [class "input-group-btn"] [ button [class "btn btn-default", disabled (not newFeatureTextValid)] [ text "Add"]]
     ],
     ul [ class "history"] (
-      (model.history |> filter isInHistory |> map (\ item -> li [ ] [ getHistoryText item ]))
+      (model.history |> filterMap getHistoryText |> map (\ item -> li [ ] [ item ]))
     )
   ]
 
-isInHistory msg =
-  case msg of 
-  AddEnvironment _ -> True
-  AddFeature _ -> True
-  TurnFeatureOn _ -> True
-  TurnFeatureOff _ -> True
-  _ -> False
-
 getHistoryText msg =
   case msg of
-  AddEnvironment environment -> text ("Added " ++ environment ++ " environment")
-  AddFeature feature -> text ("Added feature " ++ feature)
-  TurnFeatureOn (feature, environment) -> text ("Turned on " ++ feature ++ " for " ++ environment)
-  TurnFeatureOff (feature, environment) -> text ("Turned off " ++ feature ++ " for " ++ environment)
-  _ -> text ""
+  AddEnvironment environment -> text ("Added " ++ environment ++ " environment") |> Just
+  AddFeature feature -> text ("Added feature " ++ feature) |> Just
+  TurnFeatureOn (feature, environment) -> text ("Turned on " ++ feature ++ " for " ++ environment) |> Just
+  TurnFeatureOff (feature, environment) -> text ("Turned off " ++ feature ++ " for " ++ environment) |> Just
+  _ -> Nothing
 
 drawHeader environments =
   thead [] ( "" :: environments |> map (\ header -> th [] [ text header ]) )
