@@ -7,14 +7,14 @@ use Mix.Config
 
 # General application configuration
 config :hello_phoenix,
-  ecto_repos: [HelloPhoenix.Repo]
+  ecto_repos: [FeatureFlax.Repo]
 
 # Configures the endpoint
-config :hello_phoenix, HelloPhoenix.Endpoint,
+config :hello_phoenix, FeatureFlax.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "EkaZC5uL5SWo8+d/52ncPEW4ZjT3Gc8a93YGfqo4SIUn+vRwgNRZ+T08Oe5oVmO9",
-  render_errors: [view: HelloPhoenix.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: HelloPhoenix.PubSub,
+  render_errors: [view: FeatureFlax.ErrorView, accepts: ~w(html json)],
+  pubsub: [name: FeatureFlax.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger

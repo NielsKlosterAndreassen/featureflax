@@ -1,3 +1,3 @@
-defmodule HelloPhoenix.LayoutViewTest do
-  use HelloPhoenix.ConnCase, async: true
+defmodule FeatureFlax.LayoutViewTest do
+  use FeatureFlax.ConnCase, async: true
 end

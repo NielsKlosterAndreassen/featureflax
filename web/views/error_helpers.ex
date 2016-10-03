@@ -1,4 +1,4 @@
-defmodule HelloPhoenix.ErrorHelpers do
+defmodule FeatureFlax.ErrorHelpers do
   @moduledoc """
   Conveniences for translating and building error messages.
   """
@@ -32,9 +32,9 @@ defmodule HelloPhoenix.ErrorHelpers do
     #     dgettext "errors", "is invalid"
     #
     if count = opts[:count] do
-      Gettext.dngettext(HelloPhoenix.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(FeatureFlax.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(HelloPhoenix.Gettext, "errors", msg, opts)
+      Gettext.dgettext(FeatureFlax.Gettext, "errors", msg, opts)
     end
   end
 end

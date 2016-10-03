@@ -1,3 +1,3 @@
-defmodule HelloPhoenix.LayoutView do
-  use HelloPhoenix.Web, :view
+defmodule FeatureFlax.LayoutView do
+  use FeatureFlax.Web, :view
 end

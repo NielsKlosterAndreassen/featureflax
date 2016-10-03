@@ -1,4 +1,4 @@
-defmodule HelloPhoenix.ChannelCase do
+defmodule FeatureFlax.ChannelCase do
   @moduledoc """
   This module defines the test case to be used by
   channel tests.
@@ -20,22 +20,22 @@ defmodule HelloPhoenix.ChannelCase do
       # Import conveniences for testing with channels
       use Phoenix.ChannelTest
 
-      alias HelloPhoenix.Repo
+      alias FeatureFlax.Repo
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
 
 
       # The default endpoint for testing
-      @endpoint HelloPhoenix.Endpoint
+      @endpoint FeatureFlax.Endpoint
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(HelloPhoenix.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(FeatureFlax.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(HelloPhoenix.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(FeatureFlax.Repo, {:shared, self()})
     end
 
     :ok

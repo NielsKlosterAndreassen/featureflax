@@ -1,5 +1,5 @@
-defmodule HelloPhoenix.PageControllerTest do
-  use HelloPhoenix.ConnCase
+defmodule FeatureFlax.PageControllerTest do
+  use FeatureFlax.ConnCase
 
   test "GET /", %{conn: conn} do
     conn = get conn, "/"

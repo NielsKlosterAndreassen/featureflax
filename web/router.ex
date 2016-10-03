@@ -1,5 +1,5 @@
-defmodule HelloPhoenix.Router do
-  use HelloPhoenix.Web, :router
+defmodule FeatureFlax.Router do
+  use FeatureFlax.Web, :router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -13,14 +13,14 @@ defmodule HelloPhoenix.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", HelloPhoenix do
+  scope "/", FeatureFlax do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", HelloPhoenix do
+  # scope "/api", FeatureFlax do
   #   pipe_through :api
   # end
 end

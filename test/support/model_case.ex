@@ -1,4 +1,4 @@
-defmodule HelloPhoenix.ModelCase do
+defmodule FeatureFlax.ModelCase do
   @moduledoc """
   This module defines the test case to be used by
   model tests.
@@ -16,20 +16,20 @@ defmodule HelloPhoenix.ModelCase do
 
   using do
     quote do
-      alias HelloPhoenix.Repo
+      alias FeatureFlax.Repo
 
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import HelloPhoenix.ModelCase
+      import FeatureFlax.ModelCase
     end
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(HelloPhoenix.Repo)
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(FeatureFlax.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(HelloPhoenix.Repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(FeatureFlax.Repo, {:shared, self()})
     end
 
     :ok
@@ -59,7 +59,7 @@ defmodule HelloPhoenix.ModelCase do
   """
   def errors_on(struct, data) do
     struct.__struct__.changeset(struct, data)
-    |> Ecto.Changeset.traverse_errors(&HelloPhoenix.ErrorHelpers.translate_error/1)
+    |> Ecto.Changeset.traverse_errors(&FeatureFlax.ErrorHelpers.translate_error/1)
     |> Enum.flat_map(fn {key, errors} -> for msg <- errors, do: {key, msg} end)
   end
 end

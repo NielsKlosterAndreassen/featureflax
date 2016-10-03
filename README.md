@@ -1,4 +1,4 @@
-# HelloPhoenix
+# FeatureFlax
 
 To start your Phoenix app:
 
